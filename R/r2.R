@@ -8,12 +8,12 @@
 # >>>>>>>>>> PLACEHOLDER: Replace these three strings <<<<<<<<<<
 # with the output from .encrypt_credentials()
 #
-.ENCRYPTED_ACCESS_KEY_ID     <- "dF9/RVcPBAYABBEjDHsTBVxTUlBWFiILfBdQCF8EUQQ="
-.ENCRYPTED_SECRET_ACCESS_KEY <- "dVgqQlVZVFNRDBJ1DSoTUA8DBgdRFXZbLRRYXVMGBQMWJl1/S1hZBFZSVRdxW39EWFZTUFBVEnBdeEBXWV9TVQ=="
-.ENCRYPTED_ENDPOINT_URL      <- "Lxs7AhJUSEoEBEAiCXwXVwsGUwdQQH9YfUYEW1FVDA0Rdwp/QlVdUktGBg8kAyAHBQgLBEZRUjMAPRMGC0kGW1k="
+.ENCRYPTED_ACCESS_KEY_ID     <- "PASTE_ENCRYPTED_ACCESS_KEY_HERE"
+.ENCRYPTED_SECRET_ACCESS_KEY <- "PASTE_ENCRYPTED_SECRET_KEY_HERE"
+.ENCRYPTED_ENDPOINT_URL      <- "PASTE_ENCRYPTED_ENDPOINT_HERE"
 
 # >>>>>>>>>> PLACEHOLDER: Replace with your chosen username <<<<<<<<<<
-.VALID_USERNAME <- "su_scout"
+.VALID_USERNAME <- "REPLACE_WITH_USERNAME"
 
 
 # ============================================================
@@ -201,14 +201,17 @@ read_daily <- function(dataset = c("game_info_daily", "pbp_daily",
     tryCatch({
       raw <- aws.s3::get_object(key, bucket = bucket, use_https = TRUE,
                                 base_url = endpoint, region = "")
-      arrow::read_parquet(rawConnection(raw))
+      tbl <- arrow::read_parquet(rawConnection(raw), as_data_frame = FALSE)
+      as.data.frame(tbl)
     }, error = function(e) {
       warning(sprintf("Failed to read %s: %s", key, e$message))
       NULL
     })
   })
 
-  do.call(rbind, Filter(Negate(is.null), dfs))
+  results <- Filter(Negate(is.null), dfs)
+  if (length(results) == 1) return(results[[1]])
+  do.call(rbind, results)
 }
 
 
