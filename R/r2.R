@@ -8,12 +8,12 @@
 # >>>>>>>>>> PLACEHOLDER: Replace these three strings <<<<<<<<<<
 # with the output from .encrypt_credentials()
 #
-.ENCRYPTED_ACCESS_KEY_ID     <- "PASTE_ENCRYPTED_ACCESS_KEY_HERE"
-.ENCRYPTED_SECRET_ACCESS_KEY <- "PASTE_ENCRYPTED_SECRET_KEY_HERE"
-.ENCRYPTED_ENDPOINT_URL      <- "PASTE_ENCRYPTED_ENDPOINT_HERE"
+.ENCRYPTED_ACCESS_KEY_ID     <- "dF9/RVcPBAYABBEjDHsTBVxTUlBWFiILfBdQCF8EUQQ="
+.ENCRYPTED_SECRET_ACCESS_KEY <- "dVgqQlVZVFNRDBJ1DSoTUA8DBgdRFXZbLRRYXVMGBQMWJl1/S1hZBFZSVRdxW39EWFZTUFBVEnBdeEBXWV9TVQ=="
+.ENCRYPTED_ENDPOINT_URL      <- "Lxs7AhJUSEoEBEAiCXwXVwsGUwdQQH9YfUYEW1FVDA0Rdwp/QlVdUktGBg8kAyAHBQgLBEZRUjMAPRMGC0kGW1k="
 
 # >>>>>>>>>> PLACEHOLDER: Replace with your chosen username <<<<<<<<<<
-.VALID_USERNAME <- "REPLACE_WITH_USERNAME"
+.VALID_USERNAME <- "su_scout"
 
 
 # ============================================================
@@ -202,10 +202,26 @@ read_daily <- function(dataset = c("game_info_daily", "pbp_daily",
       raw <- aws.s3::get_object(key, bucket = bucket, use_https = TRUE,
                                 base_url = endpoint, region = "")
       tbl <- arrow::read_parquet(rawConnection(raw), as_data_frame = FALSE)
-      as.data.frame(tbl)
-    }, error = function(e) {
-      warning(sprintf("Failed to read %s: %s", key, e$message))
-      NULL
+      as.data.frame(tbl, check.names = FALSE)
+    }, error = function(e1) {
+      # Fallback: read with arrow then convert column by column
+      tryCatch({
+        raw <- aws.s3::get_object(key, bucket = bucket, use_https = TRUE,
+                                  base_url = endpoint, region = "")
+        tbl <- arrow::read_parquet(rawConnection(raw), as_data_frame = FALSE)
+        cols <- lapply(names(tbl), function(col) {
+          tryCatch(as.vector(tbl[[col]]), error = function(e) {
+            lapply(seq_len(tbl$num_rows) - 1, function(i) {
+              as.vector(tbl[[col]]$GetScalar(i)$as_r())
+            })
+          })
+        })
+        names(cols) <- names(tbl)
+        as.data.frame(cols, check.names = FALSE, stringsAsFactors = FALSE)
+      }, error = function(e2) {
+        warning(sprintf("Failed to read %s: %s", key, e2$message))
+        NULL
+      })
     })
   })
 
