@@ -1,0 +1,5 @@
+export(connect)
+export(list_dates)
+export(read_daily)
+export(read_rosters)
+export(read_teams)
