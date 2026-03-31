@@ -50,4 +50,4 @@ teams <- read_teams()
 
 ## Need credentials?
 
-Contact Jameson Bodenburg (jbodenbu@syr.edu).
+Contact Jameson Bodenburg (jgbodenb@syr.edu).
