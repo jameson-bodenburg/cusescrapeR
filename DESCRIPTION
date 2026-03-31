@@ -1,0 +1,16 @@
+Package: cusescrapeR
+Title: Access Syracuse MBB Data from Cloudflare R2
+Version: 0.1.0
+Authors@R: 
+    person("Jameson", "Bodenburg", role = c("aut", "cre"),
+           email = "jbodenbu@syr.edu")
+Description: Provides functions to connect to a Cloudflare R2 bucket and
+    read play-by-play, box score, game info, stint, roster, and team data
+    for Syracuse men's basketball. Requires valid R2 credentials.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports:
+    aws.s3,
+    arrow
