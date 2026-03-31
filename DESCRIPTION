@@ -3,7 +3,7 @@ Title: Access Syracuse MBB Data from Cloudflare R2
 Version: 0.1.0
 Authors@R: 
     person("Jameson", "Bodenburg", role = c("aut", "cre"),
-           email = "jbodenbu@syr.edu")
+           email = "jameson.bodenburg@gmail.com")
 Description: Provides functions to connect to a Cloudflare R2 bucket and
     read play-by-play, box score, game info, stint, roster, and team data
     for Syracuse men's basketball. Requires valid R2 credentials.
