@@ -6,11 +6,12 @@ Authors@R:
            email = "jameson.bodenburg@gmail.com")
 Description: Provides functions to connect to a Cloudflare R2 bucket and
     read play-by-play, box score, game info, stint, roster, and team data
-    for Syracuse men's basketball. Requires valid R2 credentials.
+    for Syracuse men's basketball. Requires valid credentials.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports:
     aws.s3,
-    arrow
+    arrow,
+    base64enc
