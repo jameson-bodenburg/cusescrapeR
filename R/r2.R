@@ -228,6 +228,24 @@ read_daily <- function(dataset = c("game_info_daily", "pbp_daily",
   results <- Filter(Negate(is.null), dfs)
   if (length(results) == 0) return(data.frame())
   if (length(results) == 1) return(results[[1]])
+
+  # Normalize list columns across all data frames to prevent bind errors
+  all_cols <- unique(unlist(lapply(results, names)))
+  list_col_names <- unique(unlist(lapply(results, function(df) {
+    names(which(sapply(df, is.list)))
+  })))
+
+  if (length(list_col_names) > 0) {
+    results <- lapply(results, function(df) {
+      for (col in list_col_names) {
+        if (col %in% names(df)) {
+          df[[col]] <- as.list(df[[col]])
+        }
+      }
+      df
+    })
+  }
+
   dplyr::bind_rows(results)
 }
 
