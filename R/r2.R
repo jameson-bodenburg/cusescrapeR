@@ -16,6 +16,7 @@
 .VALID_USERNAME <- "su_scout"
 
 
+
 # ============================================================
 # INTERNAL: Encryption helpers (XOR cipher with base64)
 # ============================================================
@@ -227,7 +228,7 @@ read_daily <- function(dataset = c("game_info_daily", "pbp_daily",
   results <- Filter(Negate(is.null), dfs)
   if (length(results) == 0) return(data.frame())
   if (length(results) == 1) return(results[[1]])
-  do.call(rbind, results)
+  dplyr::bind_rows(results)
 }
 
 
