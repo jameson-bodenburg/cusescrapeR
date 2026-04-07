@@ -197,56 +197,35 @@ read_daily <- function(dataset = c("game_info_daily", "pbp_daily",
 
   message(sprintf("Reading %d file(s) from %s...", length(available), dataset))
 
-  dfs <- lapply(available, function(d) {
+  tables <- lapply(available, function(d) {
     key <- sprintf("%s/%s.parquet", dataset, d)
     tryCatch({
       raw <- aws.s3::get_object(key, bucket = bucket, use_https = TRUE,
                                 base_url = endpoint, region = "")
-      tbl <- arrow::read_parquet(rawConnection(raw), as_data_frame = FALSE)
-
-      # Convert list columns to R lists manually, then everything else normally
-      list_cols <- names(which(sapply(tbl$schema$fields, function(f) {
-        grepl("list", f$type$ToString())
-      })))
-
-      df <- as.data.frame(
-        tbl$SelectColumns(setdiff(names(tbl), list_cols)),
-        check.names = FALSE
-      )
-
-      for (col in list_cols) {
-        df[[col]] <- as.list(tbl[[col]]$as_vector())
-      }
-
-      df
+      arrow::read_parquet(rawConnection(raw), as_data_frame = FALSE)
     }, error = function(e) {
       warning(sprintf("Failed to read %s: %s", key, e$message))
       NULL
     })
   })
 
-  results <- Filter(Negate(is.null), dfs)
-  if (length(results) == 0) return(data.frame())
-  if (length(results) == 1) return(results[[1]])
+  tables <- Filter(Negate(is.null), tables)
+  if (length(tables) == 0) return(data.frame())
 
-  # Normalize list columns across all data frames to prevent bind errors
-  all_cols <- unique(unlist(lapply(results, names)))
-  list_col_names <- unique(unlist(lapply(results, function(df) {
-    names(which(sapply(df, is.list)))
-  })))
-
-  if (length(list_col_names) > 0) {
-    results <- lapply(results, function(df) {
-      for (col in list_col_names) {
-        if (col %in% names(df)) {
-          df[[col]] <- as.list(df[[col]])
-        }
-      }
-      df
-    })
+  # Combine all Arrow tables first, then convert once
+  combined <- if (length(tables) == 1) {
+    tables[[1]]
+  } else {
+    arrow::concat_tables(!!!tables, unify_schemas = TRUE)
   }
 
-  dplyr::bind_rows(results)
+  # Convert each column individually to handle list columns
+  cols <- lapply(names(combined), function(col) {
+    vec <- combined[[col]]$as_vector()
+    if (is.list(vec)) as.list(vec) else vec
+  })
+  names(cols) <- names(combined)
+  as.data.frame(cols, check.names = FALSE, stringsAsFactors = FALSE)
 }
 
 
