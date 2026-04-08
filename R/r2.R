@@ -212,20 +212,19 @@ read_daily <- function(dataset = c("game_info_daily", "pbp_daily",
   tables <- Filter(Negate(is.null), tables)
   if (length(tables) == 0) return(data.frame())
 
-  # Combine all Arrow tables first, then convert once
-  combined <- if (length(tables) == 1) {
-    tables[[1]]
-  } else {
-    arrow::concat_tables(!!!tables, unify_schemas = TRUE)
+  # Convert each Arrow table to a data frame with list columns as plain lists
+  .arrow_to_df <- function(tbl) {
+    cols <- lapply(names(tbl), function(col) {
+      vec <- tbl[[col]]$as_vector()
+      if (is.list(vec)) as.list(vec) else vec
+    })
+    names(cols) <- names(tbl)
+    as.data.frame(cols, check.names = FALSE, stringsAsFactors = FALSE)
   }
 
-  # Convert each column individually to handle list columns
-  cols <- lapply(names(combined), function(col) {
-    vec <- combined[[col]]$as_vector()
-    if (is.list(vec)) as.list(vec) else vec
-  })
-  names(cols) <- names(combined)
-  as.data.frame(cols, check.names = FALSE, stringsAsFactors = FALSE)
+  dfs <- lapply(tables, .arrow_to_df)
+  if (length(dfs) == 1) return(dfs[[1]])
+  data.table::rbindlist(dfs, fill = TRUE, use.names = TRUE)
 }
 
 
