@@ -17,7 +17,6 @@
 
 
 
-
 # ============================================================
 # INTERNAL: Encryption helpers (XOR cipher with base64)
 # ============================================================
@@ -216,8 +215,18 @@ read_daily <- function(dataset = c("game_info_daily", "pbp_daily",
 
   results <- Filter(Negate(is.null), dfs)
   if (length(results) == 0) return(data.frame())
-  if (length(results) == 1) return(results[[1]])
-  data.table::rbindlist(results, fill = TRUE, use.names = TRUE)
+  if (length(results) == 1) {
+    out <- results[[1]]
+  } else {
+    out <- data.table::rbindlist(results, fill = TRUE, use.names = TRUE)
+  }
+
+  # Clean up column names
+  nms <- names(out)
+  nms[nms == "home_tuple"] <- "home_lineup"
+  nms[nms == "away_tuple"] <- "away_lineup"
+  names(out) <- nms
+  out
 }
 
 
