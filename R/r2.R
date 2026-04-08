@@ -198,34 +198,26 @@ read_daily <- function(dataset = c("game_info_daily", "pbp_daily",
 
   message(sprintf("Reading %d file(s) from %s...", length(available), dataset))
 
-  tables <- lapply(available, function(d) {
+  dfs <- lapply(available, function(d) {
     key <- sprintf("%s/%s.parquet", dataset, d)
     tryCatch({
       raw <- aws.s3::get_object(key, bucket = bucket, use_https = TRUE,
                                 base_url = endpoint, region = "")
-      arrow::read_parquet(rawConnection(raw), as_data_frame = FALSE)
+      tmp <- tempfile(fileext = ".parquet")
+      writeBin(raw, tmp)
+      df <- arrow::read_parquet(tmp)
+      unlink(tmp)
+      df
     }, error = function(e) {
       warning(sprintf("Failed to read %s: %s", key, e$message))
       NULL
     })
   })
 
-  tables <- Filter(Negate(is.null), tables)
-  if (length(tables) == 0) return(data.frame())
-
-  # Convert each Arrow table to a data frame with list columns as plain lists
-  .arrow_to_df <- function(tbl) {
-    cols <- lapply(names(tbl), function(col) {
-      vec <- tbl[[col]]$as_vector()
-      if (is.list(vec)) as.list(vec) else vec
-    })
-    names(cols) <- names(tbl)
-    tibble::as_tibble(cols)
-  }
-
-  dfs <- lapply(tables, .arrow_to_df)
-  if (length(dfs) == 1) return(dfs[[1]])
-  data.table::rbindlist(dfs, fill = TRUE, use.names = TRUE)
+  results <- Filter(Negate(is.null), dfs)
+  if (length(results) == 0) return(data.frame())
+  if (length(results) == 1) return(results[[1]])
+  data.table::rbindlist(results, fill = TRUE, use.names = TRUE)
 }
 
 
