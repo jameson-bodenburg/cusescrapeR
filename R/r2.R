@@ -214,12 +214,17 @@ read_daily <- function(dataset = c("game_info_daily", "pbp_daily",
 
   # Convert each Arrow table to a data frame with list columns as plain lists
   .arrow_to_df <- function(tbl) {
+    n <- tbl$num_rows
     cols <- lapply(names(tbl), function(col) {
       vec <- tbl[[col]]$as_vector()
-      if (is.list(vec)) as.list(vec) else vec
+      if (is.list(vec)) I(as.list(vec)) else vec
     })
     names(cols) <- names(tbl)
-    as.data.frame(cols, check.names = FALSE, stringsAsFactors = FALSE)
+    df <- data.frame(row.names = seq_len(n))
+    for (i in seq_along(cols)) {
+      df[[names(cols)[i]]] <- cols[[i]]
+    }
+    df
   }
 
   dfs <- lapply(tables, .arrow_to_df)
