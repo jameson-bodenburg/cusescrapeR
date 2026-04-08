@@ -1,3 +1,4 @@
+
 Package: cusescrapeR
 Title: Access Syracuse MBB Data from Cloudflare R2
 Version: 0.1.0
@@ -16,4 +17,5 @@ Imports:
     arrow,
     base64enc,
     dplyr,
-    data.table
+    data.table,
+    tibble
