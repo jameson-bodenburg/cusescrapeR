@@ -43,19 +43,19 @@
 }
 
 
-#.encrypt_credentials <- function(access_key_id, secret_access_key,
- #                                 endpoint_url, password) {
-  #if (!requireNamespace("base64enc", quietly = TRUE)) {
-   # stop("Install base64enc first: install.packages('base64enc')")
-#  }
- # cat("Copy these into the top of R/r2.R:\n\n")
-  #cat('.ENCRYPTED_ACCESS_KEY_ID     <- "',
-   #   .encrypt_string(access_key_id, password), '"\n', sep = "")
-#  cat('.ENCRYPTED_SECRET_ACCESS_KEY <- "',
- #     .encrypt_string(secret_access_key, password), '"\n', sep = "")
-  #cat('.ENCRYPTED_ENDPOINT_URL      <- "',
-   #   .encrypt_string(endpoint_url, password), '"\n', sep = "")
-#}
+.encrypt_credentials <- function(access_key_id, secret_access_key,
+                                  endpoint_url, password) {
+  if (!requireNamespace("base64enc", quietly = TRUE)) {
+    stop("Install base64enc first: install.packages('base64enc')")
+  }
+  cat("Copy these into the top of R/r2.R:\n\n")
+  cat('.ENCRYPTED_ACCESS_KEY_ID     <- "',
+      .encrypt_string(access_key_id, password), '"\n', sep = "")
+  cat('.ENCRYPTED_SECRET_ACCESS_KEY <- "',
+      .encrypt_string(secret_access_key, password), '"\n', sep = "")
+  cat('.ENCRYPTED_ENDPOINT_URL      <- "',
+      .encrypt_string(endpoint_url, password), '"\n', sep = "")
+}
 
 
 # ============================================================
