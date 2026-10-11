@@ -8,9 +8,9 @@
 # >>>>>>>>>> PLACEHOLDER: Replace these three strings <<<<<<<<<<
 # with the output from .encrypt_credentials()
 #
-.ENCRYPTED_ACCESS_KEY_ID     <- "dF9/RVcPBAYABBEjDHsTBVxTUlBWFiILfBdQCF8EUQQ="
-.ENCRYPTED_SECRET_ACCESS_KEY <- "dVgqQlVZVFNRDBJ1DSoTUA8DBgdRFXZbLRRYXVMGBQMWJl1/S1hZBFZSVRdxW39EWFZTUFBVEnBdeEBXWV9TVQ=="
-.ENCRYPTED_ENDPOINT_URL      <- "Lxs7AhJUSEoEBEAiCXwXVwsGUwdQQH9YfUYEW1FVDA0Rdwp/QlVdUktGBg8kAyAHBQgLBEZRUjMAPRMGC0kGW1k="
+.ENCRYPTED_ACCESS_KEY_ID     <- "JAp/RwVbBFJXAkRzDHwWUg8EAVEDRCMNeRAEXF4HBFI="
+.ENCRYPTED_SECRET_ACCESS_KEY <- "Jlx7R1heVQQNBRYlVntFBAwBA1YNRH9fLBYAWFBdAgNCcFl3RFNfBAYHUkN2DC4WUlsEUgwMFCMLekpZWlVSUA=="
+.ENCRYPTED_ENDPOINT_URL      <- "Lxs7AhJUSEoBUkQkW35DUQhfBA0HESReKkoDWARVUAJDJl56FwdcAUtGBg8kAyAHBQgLBEZRUjMAPRMGC0kGW1k="
 
 # >>>>>>>>>> PLACEHOLDER: Replace with your chosen username <<<<<<<<<<
 .VALID_USERNAME <- "su_scout"
@@ -43,42 +43,19 @@
 }
 
 
-# ============================================================
-# CREDENTIAL GENERATOR (run this once locally to get your
-# encrypted strings, then paste them above)
-# ============================================================
-# To use:
-#   1. Open R
-#   2. Run: source("R/r2.R")
-#   3. Run the command below with YOUR actual values:
-#
-#   .encrypt_credentials(
-#     access_key_id     = "your_actual_access_key",
-#     secret_access_key = "your_actual_secret_key",
-#     endpoint_url      = "https://your_actual_endpoint.r2.cloudflarestorage.com",
-#     password          = "REPLACE_WITH_PASSWORD"
-#   )
-#
-#   4. Copy the three output strings into the PLACEHOLDER
-#      section at the top of this file.
-#   5. Commit and push.
-#
-# >>>>>>>>>> PLACEHOLDER: Replace "REPLACE_WITH_PASSWORD" <<<<<<<<<<
-# in the function call example above with your chosen password.
-#
-.encrypt_credentials <- function(access_key_id, secret_access_key,
-                                  endpoint_url, password) {
-  if (!requireNamespace("base64enc", quietly = TRUE)) {
-    stop("Install base64enc first: install.packages('base64enc')")
-  }
-  cat("Copy these into the top of R/r2.R:\n\n")
-  cat('.ENCRYPTED_ACCESS_KEY_ID     <- "',
-      .encrypt_string(access_key_id, password), '"\n', sep = "")
-  cat('.ENCRYPTED_SECRET_ACCESS_KEY <- "',
-      .encrypt_string(secret_access_key, password), '"\n', sep = "")
-  cat('.ENCRYPTED_ENDPOINT_URL      <- "',
-      .encrypt_string(endpoint_url, password), '"\n', sep = "")
-}
+#.encrypt_credentials <- function(access_key_id, secret_access_key,
+ #                                 endpoint_url, password) {
+  #if (!requireNamespace("base64enc", quietly = TRUE)) {
+   # stop("Install base64enc first: install.packages('base64enc')")
+#  }
+ # cat("Copy these into the top of R/r2.R:\n\n")
+  #cat('.ENCRYPTED_ACCESS_KEY_ID     <- "',
+   #   .encrypt_string(access_key_id, password), '"\n', sep = "")
+#  cat('.ENCRYPTED_SECRET_ACCESS_KEY <- "',
+ #     .encrypt_string(secret_access_key, password), '"\n', sep = "")
+  #cat('.ENCRYPTED_ENDPOINT_URL      <- "',
+   #   .encrypt_string(endpoint_url, password), '"\n', sep = "")
+#}
 
 
 # ============================================================
