@@ -227,13 +227,30 @@ read_rosters <- function() {
 #'
 #' @return A data frame of team data.
 #' @export
-read_teams <- function() {
+read_teams <- function(season = 2026) {
   endpoint <- getOption("r2_endpoint")
   bucket   <- getOption("r2_bucket")
   if (is.null(endpoint)) stop("Not connected. Run connect() first.", call. = FALSE)
 
-  raw <- aws.s3::get_object("team_data/espn_teams_25_26.csv",
-                            bucket = bucket, use_https = TRUE,
-                            base_url = endpoint, region = "")
-  read.csv(text = rawToChar(raw))
+  if (!is.numeric(season) || any(season %% 1 != 0)) {
+    stop("`season` must be a whole number, e.g. 2026 or 2026:2027.", call. = FALSE)
+  }
+
+  out <- lapply(unique(season), function(s) {
+    key <- sprintf("team_data/espn_teams_%02d_%02d.csv", (s - 1) %% 100, s %% 100)
+
+    raw <- tryCatch(
+      aws.s3::get_object(key, bucket = bucket, use_https = TRUE,
+                         base_url = endpoint, region = ""),
+      error = function(e) {
+        stop(sprintf("No team data found for season %d (%s).", s, key), call. = FALSE)
+      }
+    )
+
+    df <- utils::read.csv(text = rawToChar(raw))
+    df$season <- s
+    df
+  })
+
+  do.call(rbind, out)
 }
