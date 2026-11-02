@@ -209,17 +209,35 @@ read_daily <- function(dataset = c("game_info_daily", "pbp_daily",
 
 #' Read ESPN Rosters
 #'
+#' @param season Integer season(s), named by end year (2026 = 2025-26).
+#'   Can be a vector, e.g. \code{2026:2027}.
 #' @return A data frame of player roster data.
 #' @export
-read_rosters <- function() {
+read_rosters <- function(season = 2027) {
   endpoint <- getOption("r2_endpoint")
   bucket   <- getOption("r2_bucket")
   if (is.null(endpoint)) stop("Not connected. Run connect() first.", call. = FALSE)
 
-  raw <- aws.s3::get_object("player_data/espn_rosters_25_26.csv",
-                            bucket = bucket, use_https = TRUE,
-                            base_url = endpoint, region = "")
-  read.csv(text = rawToChar(raw))
+  if (!is.numeric(season) || any(season %% 1 != 0)) {
+    stop("`season` must be a whole number, e.g. 2027 or 2026:2027.", call. = FALSE)
+  }
+
+  out <- lapply(unique(season), function(s) {
+    key <- sprintf("player_data/espn_rosters_%02d_%02d.csv", (s - 1) %% 100, s %% 100)
+    raw <- tryCatch(
+      aws.s3::get_object(key, bucket = bucket, use_https = TRUE,
+                         base_url = endpoint, region = ""),
+      error = function(e) {
+        stop(sprintf("Could not read season %d (%s): %s", s, key, conditionMessage(e)),
+             call. = FALSE)
+      }
+    )
+    df <- utils::read.csv(text = rawToChar(raw))
+    df$season <- s
+    df
+  })
+
+  do.call(rbind, out)
 }
 
 
