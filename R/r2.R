@@ -122,6 +122,21 @@ connect <- function(username, password) {
 }
 
 
+# Arrow gives list columns classes (e.g. arrow_list / vctrs_list_of) that can
+# differ between files; reduce them to plain lists so files bind cleanly.
+.normalize_cols <- function(df) {
+  df <- as.data.frame(df)
+  for (nm in names(df)) {
+    x <- df[[nm]]
+    if (is.list(x) && !is.null(attr(x, "class"))) {
+      x <- unclass(x)
+      attr(x, "ptype") <- NULL
+      df[[nm]] <- x
+    }
+  }
+  df
+}
+
 #' List Available Dates for a Dataset
 #'
 #' @param dataset One of \code{"game_info_daily"}, \code{"pbp_daily"},
