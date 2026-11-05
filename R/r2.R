@@ -196,7 +196,7 @@ read_daily <- function(dataset = c("game_info_daily", "pbp_daily",
                                 base_url = endpoint, region = "")
       tmp <- tempfile(fileext = ".parquet")
       writeBin(raw, tmp)
-      df <- arrow::read_parquet(tmp)
+      df <- .normalize_cols(arrow::read_parquet(tmp))
       unlink(tmp)
       df
     }, error = function(e) {
