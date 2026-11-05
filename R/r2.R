@@ -128,7 +128,9 @@ connect <- function(username, password) {
   df <- as.data.frame(df)
   for (nm in names(df)) {
     x <- df[[nm]]
-    if (is.list(x) && !is.null(attr(x, "class"))) {
+    if (inherits(x, "vctrs_unspecified")) {
+      df[[nm]] <- rep(NA, length(x))
+    } else if (is.list(x) && !is.null(attr(x, "class"))) {
       x <- unclass(x)
       attr(x, "ptype") <- NULL
       df[[nm]] <- x
